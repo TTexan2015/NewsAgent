@@ -1,2 +1,1 @@
-# NewsAgent
-Agentic AI with news reporter and editor agents
+Creating agents with autogen framwork, Azure OpenAI and Python coding
