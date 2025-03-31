@@ -35,9 +35,9 @@ planning_agent = AssistantAgent(
     You are a planning agent.
     Your job is to break down complex tasks into smaller, manageable subtasks.
     Your team members are:
-        News_Reporter: Writes news article.
-        News_Editor: Checks and Provides constructive feedback. It doesn't write the article, only provide feedback and improvements.
-        Headline_Generator: Finally, adds the moral to the story.
+        Story_writer: Writes story and make corrections.
+        Story_reviewer: Checks if the story is for kids and Provides constructive feedback on Kids stories to add a positive impactful ending. It doesn't write the story, only provide feedback and improvements.
+        Story_moral: Finally, adds the moral to the story.
 
     You only plan and delegate tasks - you do not execute them yourself. You can engage team members multiple times so that a perfect story is provided.
 
@@ -48,25 +48,25 @@ planning_agent = AssistantAgent(
     """,
 )
 
-# Create the News Reporter agent.
-News_Reporter = AssistantAgent(
-    "News_Reporter_agent",
+# Create the Writer agent.
+Story_writer = AssistantAgent(
+    "Story_writer",
     model_client=az_model_client,
-    system_message="You are a helpful AI assistant which write news article based on given facts. Keep the article short",
+    system_message="You are a helpful AI assistant which write the story. Keep the story short.",
 )
 
-# Create the Editor agent.
-News_Editor = AssistantAgent(
-    "News_Editor_agent",
+# Create the Reviewer agent.
+Story_reviewer = AssistantAgent(
+    "Story_reviewer",
     model_client=az_model_client,
-    system_message="You are a helpful AI assistant which checks grammer, readability, clarity and ensures neutrality and fairness and provides feedback. You do not write the article",
+    system_message="You are a helpful AI assistant which checks if the story is for kids and provides constructive feedback on Kids stories to have a postive impactful ending",
 )
 
 # Story Moral Agent.
-Headline_Generator = AssistantAgent(
-    "Headline_Generator_agent",
+Story_moral = AssistantAgent(
+    "Story_moral",
     model_client=az_model_client,
-    system_message="You create engaging headlines",
+    system_message="You are a helpful AI assistant which add the moral of the story in the end so the kids have positive impact and great learning. Moral should only be of 2-3 lines and have to be written by a seperation ' ========moral of the story==========='",
 )
 
 text_mention_termination = TextMentionTermination("TERMINATE")
@@ -74,7 +74,7 @@ max_messages_termination = MaxMessageTermination(max_messages=10)
 termination = text_mention_termination | max_messages_termination
 
 team = SelectorGroupChat(
-    [planning_agent, News_Reporter, News_Editor, Headline_Generator],
+    [planning_agent, Story_writer, Story_reviewer, Story_moral],
     model_client=az_model_client,
     termination_condition=termination,
 )
@@ -82,7 +82,7 @@ team = SelectorGroupChat(
 # Define the main asynchronous function
 async def main():
     await Console(
-        team.run_stream(task="Is remote work the future, or are we losing workplace culture?")
+        team.run_stream(task="write a story on rocket crash")
     )  # Stream the messages to the console.
 
 # Run the asynchronous function
